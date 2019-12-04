@@ -4,8 +4,6 @@ from typing import List
 from .utils import load_rows
 
 
-# -------- PART 1 --------
-
 def calculate_mass(module: int) -> int:
     return (module // 3) - 2
 
@@ -13,8 +11,6 @@ def calculate_mass(module: int) -> int:
 def calculate_total_mass(modules: List[int]) -> int:
     return sum(calculate_mass(module) for module in modules)
 
-
-# -------- PART 2 --------
 
 @lru_cache(maxsize=None)
 def recursive_calculate_mass(module: int) -> int:
@@ -26,7 +22,7 @@ def calculate_total_mass2(modules: List[int]) -> int:
     return sum(recursive_calculate_mass(module) for module in modules)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     data = load_rows("day1.in", int)
 
     assert calculate_total_mass([12, 14, 1969, 100756]) == 2 + 2 + 654 + 33583
