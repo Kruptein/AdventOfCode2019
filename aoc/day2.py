@@ -1,28 +1,45 @@
-from functools import partial
+from functools import partial, partialmethod
 from itertools import product
 from operator import add, mul
-from typing import List, Optional
+from typing import Callable, Dict, List, Optional
 
 from .utils import load_rows, split_row
 
 
-def process(integers: List[int]) -> int:
-    def _(i: int) -> int:
-        return integers[integers[i]]
+class Intcode:
+    def __init__(self, program: List[int]):
+        self.program = program
+        self.index = 0
+        self.operations: Dict[int, Callable[[List[str]], None]] = {
+            1: partial(self.simple_op, add),
+            2: partial(self.simple_op, mul),
+        }
 
-    index = 0
-    while (op_code := integers[index]) != 99:
-        op = add if op_code == 1 else mul
-        integers[integers[index + 3]] = op(_(index + 1), _(index + 2))
-        index += 4
-    return integers[0]
+    @property
+    def cursor(self) -> int:
+        return self.get(0)
+
+    def get(self, offset: int) -> int:
+        return self.program[self.index + offset]
+
+    def process(self) -> int:
+        while (op_info := self.cursor) != 99:
+            op_split = list(str(op_info))
+            self.operations[int("".join(op_split[-2:]))](op_split[-3::-1])
+        return self.program[0]
+
+    def simple_op(self, method: Callable[[int, int], int], modes: List[str]) -> None:
+        self.program[self.get(3)] = method(
+            self.program[self.get(1)], self.program[self.get(2)]
+        )
+        self.index += 4
 
 
 def find_pair(integers: List[int]) -> Optional[int]:
     for noun, verb in product(range(1, 100), repeat=2):
         data = integers[:]
         data[1:3] = noun, verb
-        if process(data) == 19690720:
+        if Intcode(data).process() == 19690720:
             return 100 * noun + verb
     return None
 
@@ -33,10 +50,11 @@ if __name__ == "__main__":
     # Restore the gravity assist program to the 1202 program alarm
     data[1:3] = 12, 2
 
-    assert process([1, 0, 0, 0, 99]) == 2
-    assert process([2, 3, 0, 3, 99]) == 2
-    assert process([2, 4, 4, 5, 99, 0]) == 2
-    assert process([1, 1, 1, 4, 99, 5, 6, 0, 99]) == 30
-    print(process(data))
+    assert Intcode([1, 0, 0, 0, 99]).process() == 2
+    assert Intcode([2, 3, 0, 3, 99]).process() == 2
+    assert Intcode([2, 4, 4, 5, 99, 0]).process() == 2
+    assert Intcode([1, 1, 1, 4, 99, 5, 6, 0, 99]).process() == 30
+    # print(process(data))
+    print(Intcode(data).process())
 
     print(find_pair(og_data))
