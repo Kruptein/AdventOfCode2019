@@ -30,11 +30,7 @@ def test_phase(phases: List[int], data: List[int]) -> int:
 
 
 def find_max(data: List[int], phase_range: List[int]) -> int:
-    max_val = 0
-    for perm in permutations(phase_range):
-        signal = test_phase(perm, data)
-        if max_val < signal: max_val = signal
-    return max_val
+    return max(test_phase(perm, data) for perm in permutations(phase_range))
 
 
 if __name__ == "__main__":
