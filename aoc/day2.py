@@ -19,7 +19,8 @@ class Intcode:
     def cursor(self) -> int:
         return self.get(0)
 
-    def get(self, offset: int) -> int:
+    def get(self, offset: int, *, index_mode: bool = False) -> int:
+        if index_mode: return self.index + offset
         return self.program[self.index + offset]
 
     def process(self) -> int:

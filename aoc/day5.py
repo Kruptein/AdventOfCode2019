@@ -22,10 +22,11 @@ class IntCodePlus(Intcode):
         super().process()
         return self.outp
 
-    def get_mode(self, offset: int, modes: List[str]) -> int:
+    def get_mode(self, offset: int, modes: List[str], *, index_mode: bool = False) -> int:
         if len(modes) + 1 <= offset or modes[offset - 1] == "0":
+            if index_mode: return self.get(offset)
             return self.program[self.get(offset)]
-        return self.get(offset)
+        return self.get(offset, index_mode=index_mode)
 
     def simple_op(self, method: Callable[[int, int], int], modes: List[str]) -> None:
         self.program[self.get(3)] = method(
@@ -34,7 +35,7 @@ class IntCodePlus(Intcode):
         self.index += 4
 
     def input_op(self, modes: List[str]) -> None:
-        self.program[self.get(1)] = self.inp.pop(0)
+        self.program[self.get_mode(1, modes, index_mode=False)] = self.inp.pop(0)
         self.index += 2
 
     def output_op(self, modes: List[str]) -> None:
