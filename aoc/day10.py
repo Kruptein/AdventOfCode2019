@@ -39,14 +39,13 @@ def build_board(data: List[str]) -> List[Tuple[int]]:
 
 def vaporize(board: List[Tuple[int]], origin: Tuple[int]):
     destroyed = []
-    angle = math.pi / 2
     angled_board = defaultdict(list)
     for el in board:
         a = math.atan2(origin[1] - el[1], el[0] - origin[0])
         if a < 0: a += math.pi * 2
         angled_board[a].append(el)
     AK = sorted(angled_board.keys())
-    index = next(i for i, k in enumerate(AK) if k >= angle)
+    index = next(i for i, k in enumerate(AK) if k >= math.pi / 2)
     while len(destroyed) < 200:
         destroyed.append(min(angled_board[AK[index]], key=lambda a: (abs(a[0] - origin[0]), abs(a[1] - origin[1]))))
         index -= 1
