@@ -8,7 +8,7 @@ from .utils import load_rows, split_row
 
 class InfiniteList(List[int]):
     def __getitem__(self, key):
-        if key > len(self):
+        if key >= len(self):
             return 0
         return super().__getitem__(key)
 
